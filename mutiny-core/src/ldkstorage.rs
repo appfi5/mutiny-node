@@ -373,7 +373,7 @@ impl<S: MutinyStorage> MutinyNodePersister<S> {
             chain_monitor,
             mutiny_chain,
             router,
-            mutiny_logger,
+            mutiny_logger.clone(),
             keys_manager.clone(),
             keys_manager.clone(),
             keys_manager,
@@ -382,9 +382,18 @@ impl<S: MutinyStorage> MutinyNodePersister<S> {
             utils::now().as_secs() as u32,
         );
 
+        let has_orphan_monitors = !channel_monitors.is_empty();
+        if has_orphan_monitors {
+            log_warn!(
+                mutiny_logger,
+                "Found {} orphan channel monitor(s) without a channel manager, registering them for chain monitoring",
+                channel_monitors.len()
+            );
+        }
+
         Ok(ReadChannelManager {
             channel_manager: fresh_channel_manager,
-            is_restarting: !channel_monitors.is_empty(),
+            is_restarting: has_orphan_monitors,
             channel_monitors,
         })
     }
