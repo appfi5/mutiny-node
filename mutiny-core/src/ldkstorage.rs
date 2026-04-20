@@ -384,7 +384,7 @@ impl<S: MutinyStorage> MutinyNodePersister<S> {
 
         Ok(ReadChannelManager {
             channel_manager: fresh_channel_manager,
-            is_restarting: false,
+            is_restarting: !channel_monitors.is_empty(),
             channel_monitors,
         })
     }
